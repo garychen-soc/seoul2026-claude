@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+  <title>首爾 2026 · 隨身手冊</title>
+  <meta name="description" content="首爾 6 天 5 夜旅遊隨身手冊：航班、住宿、逐日行程、票券、交通與地圖連結。可離線使用、可加到主畫面。">
+  <meta name="theme-color" content="#5B3FD6">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="首爾 2026">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+  <header class="appbar">
+    <div class="appbar-row">
+      <div class="brand">首爾<span class="dot">·</span>2026</div>
+      <div class="statusline" id="statusline">載入中</div>
+    </div>
+  </header>
+
+  <main id="view"><!-- rendered by app.js --></main>
+
+  <nav class="tabbar" aria-label="主選單">
+    <button class="tab on" data-v="home"><span class="ti">🏠</span>總覽</button>
+    <button class="tab" data-v="days"><span class="ti">🗓</span>行程</button>
+    <button class="tab" data-v="tickets"><span class="ti">🎟</span>票券</button>
+    <button class="tab" data-v="transit"><span class="ti">🚇</span>交通</button>
+  </nav>
+
+  <script src="./app.js"></script>
+</body>
+</html>
