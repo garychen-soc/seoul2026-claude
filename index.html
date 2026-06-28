@@ -20,8 +20,15 @@
     <div class="appbar-row">
       <div class="brand">首爾<span class="dot">·</span>2026</div>
       <div class="statusline" id="statusline">載入中</div>
+      <button class="icon-btn" id="searchBtn" aria-label="搜尋">🔍</button>
+      <button class="icon-btn" id="themeBtn" aria-label="深色模式">🌙</button>
     </div>
   </header>
+
+  <div class="searchwrap" id="searchWrap" hidden>
+    <input id="searchBox" class="searchbox" type="search" placeholder="搜尋：景福宮、泡麵、退稅、韓文、計程車…">
+    <div class="searchres" id="searchRes"></div>
+  </div>
 
   <main id="view"><!-- rendered by app.js --></main>
 
@@ -30,6 +37,7 @@
     <button class="tab" data-v="days"><span class="ti">🗓</span>行程</button>
     <button class="tab" data-v="tickets"><span class="ti">🎟</span>票券</button>
     <button class="tab" data-v="transit"><span class="ti">🚇</span>交通</button>
+    <button class="tab" data-v="tools"><span class="ti">🧰</span>實用</button>
   </nav>
 
   <script src="./app.js"></script>

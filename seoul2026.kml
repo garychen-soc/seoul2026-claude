@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>首爾 2026 · 6天5夜行程地圖</name>
+    <description>2026/6/30–7/5 四人行。匯入 Google My Maps 後，於 Google 地圖 App 內可離線使用。景點為精確定位，餐廳為概略位置（到當地請搭配 Naver Map 再確認）。</description>
+
+    <Style id="base"><IconStyle><scale>1.1</scale><Icon><href>https://maps.google.com/mapfiles/kml/paddle/grn-blank.png</href></Icon></IconStyle></Style>
+    <Style id="d1"><IconStyle><color>ff2dc0ff</color><scale>1.1</scale><Icon><href>https://maps.google.com/mapfiles/kml/paddle/1.png</href></Icon></IconStyle></Style>
+    <Style id="d2"><IconStyle><color>ff5b3fd6</color><scale>1.1</scale><Icon><href>https://maps.google.com/mapfiles/kml/paddle/2.png</href></Icon></IconStyle></Style>
+    <Style id="d3"><IconStyle><color>ffd63f8b</color><scale>1.1</scale><Icon><href>https://maps.google.com/mapfiles/kml/paddle/3.png</href></Icon></IconStyle></Style>
+    <Style id="d4"><IconStyle><color>ff3a6aee</color><scale>1.1</scale><Icon><href>https://maps.google.com/mapfiles/kml/paddle/4.png</href></Icon></IconStyle></Style>
+    <Style id="d5"><IconStyle><color>ff3acb6a</color><scale>1.1</scale><Icon><href>https://maps.google.com/mapfiles/kml/paddle/5.png</href></Icon></IconStyle></Style>
+    <Style id="hotel"><IconStyle><color>ff0a0aff</color><scale>1.3</scale><Icon><href>https://maps.google.com/mapfiles/kml/shapes/lodging.png</href></Icon></IconStyle></Style>
+    <Style id="air"><IconStyle><color>ff999999</color><scale>1.2</scale><Icon><href>https://maps.google.com/mapfiles/kml/shapes/airports.png</href></Icon></IconStyle></Style>
+
+    <Folder>
+      <name>🏨 住宿基地</name>
+      <Placemark><name>Stayrak Hotel（明洞·忠武路）</name><styleUrl>#hotel</styleUrl>
+        <description>211-5 Toegye-ro, Jung-gu, Seoul 04557｜入住 6/30 15:00 後 / 退房 7/5 12:00 前｜電話 +82-2-1811-1811</description>
+        <Point><coordinates>126.99420,37.56080,0</coordinates></Point></Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Day 1 · 6/30（二）抵達</name>
+      <Placemark><name>仁川國際機場 T1（抵達）</name><styleUrl>#air</styleUrl><description>20:45 德威航空 TW670 抵達</description><Point><coordinates>126.44070,37.46020,0</coordinates></Point></Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Day 2 · 7/1（三）歷史文化</name>
+      <Placemark><name>Isaac Toast 明洞聖堂店</name><styleUrl>#d2</styleUrl><description>08:30 早餐</description><Point><coordinates>126.98700,37.56380,0</coordinates></Point></Placemark>
+      <Placemark><name>景福宮</name><styleUrl>#d2</styleUrl><description>09:40 韓服體驗＋景福宮（穿韓服免費入場；11:00 守門將換崗）</description><Point><coordinates>126.97700,37.57960,0</coordinates></Point></Placemark>
+      <Placemark><name>廣藏市場</name><styleUrl>#d2</styleUrl><description>12:15 午餐（生牛肉·綠豆煎餅·刀削麵·麻藥飯捲）</description><Point><coordinates>126.99990,37.57010,0</coordinates></Point></Placemark>
+      <Placemark><name>北村韓屋村</name><styleUrl>#d2</styleUrl><description>14:00（17:00 後居民休息請降低音量）</description><Point><coordinates>126.98490,37.58260,0</coordinates></Point></Placemark>
+      <Placemark><name>Blue Bottle 三清洞店</name><styleUrl>#d2</styleUrl><description>14:45 手沖休息（石階雨天防滑）</description><Point><coordinates>126.98100,37.58260,0</coordinates></Point></Placemark>
+      <Placemark><name>益善洞韓屋村</name><styleUrl>#d2</styleUrl><description>16:00 傍晚點燈最美</description><Point><coordinates>126.99050,37.57270,0</coordinates></Point></Placemark>
+      <Placemark><name>王妃家 明洞本店</name><styleUrl>#d2</styleUrl><description>19:00 晚餐</description><Point><coordinates>126.98520,37.56360,0</coordinates></Point></Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Day 3 · 7/2（四）地標與購物</name>
+      <Placemark><name>EGG DROP 明洞店</name><styleUrl>#d3</styleUrl><description>09:00 早餐</description><Point><coordinates>126.98600,37.56330,0</coordinates></Point></Placemark>
+      <Placemark><name>東大門 DDP</name><styleUrl>#d3</styleUrl><description>10:00 採光好、室內冷氣、可看特展；Shake Shack 在 Doota Mall 1F</description><Point><coordinates>127.00940,37.56690,0</coordinates></Point></Placemark>
+      <Placemark><name>南山纜車乘車處</name><styleUrl>#d3</styleUrl><description>14:15</description><Point><coordinates>126.98360,37.55560,0</coordinates></Point></Placemark>
+      <Placemark><name>N 首爾塔</name><styleUrl>#d3</styleUrl><description>14:45 觀景台＋愛情鎖牆（買來回票）</description><Point><coordinates>126.98820,37.55120,0</coordinates></Point></Placemark>
+      <Placemark><name>明洞商圈（韓牛·血拼）</name><styleUrl>#d3</styleUrl><description>18:00 站著吃韓牛 → 19:30 LINE FRIENDS·Olive Young 旗艦·ABC-MART</description><Point><coordinates>126.98500,37.56360,0</coordinates></Point></Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Day 4 · 7/3（五）潮流＋漢江</name>
+      <Placemark><name>瑞源粥（鮑魚粥）</name><styleUrl>#d4</styleUrl><description>09:30 早餐</description><Point><coordinates>126.98600,37.56230,0</coordinates></Point></Placemark>
+      <Placemark><name>新沙洞林蔭道</name><styleUrl>#d4</styleUrl><description>10:40 Gentle Monster／Tamburins／Maison Kitsuné</description><Point><coordinates>127.02270,37.52030,0</coordinates></Point></Placemark>
+      <Placemark><name>狎鷗亭羅德奧</name><styleUrl>#d4</styleUrl><description>12:15 Wiggle Wiggle·London Bagel·K-Star Road</description><Point><coordinates>127.04050,37.52730,0</coordinates></Point></Placemark>
+      <Placemark><name>聖水洞 · 大林倉庫</name><styleUrl>#d4</styleUrl><description>13:40 ★從狎鷗亭計程車約 15 分（過漢江）。Dior 聖水·Mardi·Amore 聖水；17:30 大林倉庫下午茶</description><Point><coordinates>127.05570,37.54430,0</coordinates></Point></Placemark>
+      <Placemark><name>祖傳三代馬鈴薯排骨湯（聖水）</name><styleUrl>#d4</styleUrl><description>14:30 午餐（避中午尖峰）</description><Point><coordinates>127.05500,37.54470,0</coordinates></Point></Placemark>
+      <Placemark><name>自然島鹽麵包 聖水店</name><styleUrl>#d4</styleUrl><description>18:30 外帶當漢江宵夜</description><Point><coordinates>127.05600,37.54500,0</coordinates></Point></Placemark>
+      <Placemark><name>纛島漢江公園</name><styleUrl>#d4</styleUrl><description>19:00 騎腳踏車（護照正本＋現金臨櫃）＋ GS25 煮泡麵＋夜景</description><Point><coordinates>127.06670,37.53050,0</coordinates></Point></Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Day 5 · 7/4（六）弘大＋明洞補貨</name>
+      <Placemark><name>延南洞 / 弘大</name><styleUrl>#d5</styleUrl><description>10:30 逛街散步（弘大入口站 9 號出口主街）</description><Point><coordinates>126.92500,37.56040,0</coordinates></Point></Placemark>
+      <Placemark><name>延南站著吃食堂（韓牛）</name><styleUrl>#d5</styleUrl><description>13:30 午餐（或延南洞烤腸／401 烤肉）</description><Point><coordinates>126.92450,37.56000,0</coordinates></Point></Placemark>
+      <Placemark><name>明洞聖堂</name><styleUrl>#d5</styleUrl><description>19:00 哥德式紅磚教堂（避 12–13:00 午休，夜拍更美）</description><Point><coordinates>126.98740,37.56330,0</coordinates></Point></Placemark>
+      <Placemark><name>元堂馬鈴薯排骨湯（明洞 1 號店）</name><styleUrl>#d5</styleUrl><description>20:00 晚餐</description><Point><coordinates>126.98480,37.56350,0</coordinates></Point></Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Day 6 · 7/5（日）回程</name>
+      <Placemark><name>仁川國際機場 T2（回程）★</name><styleUrl>#air</styleUrl><description>14:50 真航空 LJ737 起飛。★務必到 T2，勿去 T1（接駁 15–20 分）</description><Point><coordinates>126.45050,37.46910,0</coordinates></Point></Placemark>
+    </Folder>
+  </Document>
+</kml>

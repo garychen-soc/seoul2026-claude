@@ -1,10 +1,11 @@
 /* 首爾 2026 PWA — offline service worker */
-const CACHE = "seoul2026-v1";
+const CACHE = "seoul2026-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./app.css",
   "./app.js",
+  "./seoul2026.kml",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

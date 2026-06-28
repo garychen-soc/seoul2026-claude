@@ -211,6 +211,37 @@ const TRIP = {
     ["新沙站", "ChIJiS6vTOijfDURyEZUZYIqBJk"],
     ["弘大入口站", "ChIJExW378KYfDUR8aFijbcqirQ"],
   ],
+  phrases: [
+    { z: "請刷卡結帳", k: "카드로 계산할게요", r: "ka-deu-ro gye-san-hal-ge-yo" },
+    { z: "請幫我打包", k: "포장해 주세요", r: "po-jang-hae ju-se-yo" },
+    { z: "請不要太辣", k: "덜 맵게 해주세요", r: "deol maep-ge hae-ju-se-yo" },
+    { z: "廁所在哪裡？", k: "화장실 어디예요?", r: "hwa-jang-sil eo-di-ye-yo" },
+    { z: "請載我到這裡", k: "여기로 가 주세요", r: "yeo-gi-ro ga ju-se-yo" },
+    { z: "有中文菜單嗎？", k: "중국어 메뉴 있어요?", r: "jung-gug-eo me-nyu i-sseo-yo" },
+    { z: "這個多少錢？", k: "이거 얼마예요?", r: "i-geo eol-ma-ye-yo" },
+    { z: "可以退稅嗎？", k: "택스 리펀 되나요?", r: "taek-seu ri-peon doe-na-yo" },
+    { z: "請給我一份這個", k: "이거 하나 주세요", r: "i-geo ha-na ju-se-yo" },
+    { z: "謝謝", k: "감사합니다", r: "gam-sa-ham-ni-da" },
+  ],
+  shopping: [
+    "Olive Young 旗艦（現場退稅）", "Gentle Monster 墨鏡", "Tamburins 香氛", "Stand Oil 包",
+    "Mardi Mercredi 上衣", "Fwee 彩妝", "Amore 聖水體驗館", "HBAF 蜂蜜奶油杏仁",
+    "辛拉麵／海苔／零食", "LINE FRIENDS / BT21", "ABC-MART 運動鞋", "退稅收據整理（滿 ₩15,000）", "行李秤確認（LJ737 限 15kg）",
+  ],
+  emergency: [
+    { t: "住宿 Stayrak Hotel", v: "211-5 Toegye-ro, Jung-gu, Seoul", tel: "+82-2-1811-1811" },
+    { t: "韓國警察", v: "刑事案件、報案", tel: "112" },
+    { t: "消防・救護車", v: "火災、急病送醫", tel: "119" },
+    { t: "韓國觀光諮詢專線", v: "中／英／日 24h，可協助翻譯", tel: "1330" },
+    { t: "駐韓國台北代表部", v: "急難救助專線 +82-10-9080-2761", tel: "+82-2-399-2767" },
+    { t: "旅外國人緊急服務（台灣）", v: "南韓全球免付費", tel: "001-800-0885-0885" },
+    { t: "旅外國人急難救助（國內）", v: "免付費", tel: "0800-085-095" },
+  ],
+  fxTips: [
+    "現場刷卡多以 KRW 計價最划算，避免「以 TWD 結帳」的 DCC 動態匯率手續費。",
+    "WOWPASS 機場取卡可換匯＋當交通卡＋刷卡，零錢免煩惱。",
+    "便利商店、計程車多可刷卡或嗶 T-money；保留少量現金給傳統市場攤販。",
+  ],
 };
 
 /* ---------- utilities ---------- */
@@ -221,9 +252,117 @@ const store = {
   set: (k, v) => { try { localStorage.setItem("s26:" + k, JSON.stringify(v)); } catch {} },
 };
 const mapLink = (url, label) => `<a class="maplink" href="${url}" target="_blank" rel="noopener">📍 ${esc(label)}</a>`;
+const naver = (q) => "https://map.naver.com/p/search/" + encodeURIComponent(q);
+const kakao = (q) => "https://map.kakao.com/link/search/" + encodeURIComponent(q);
+// Google (precise CID/search) + Naver + Kakao for any item that has a map.
+const mapTrio = (it) => {
+  if (!it.m) return "";
+  const q = it.mp || it.a;
+  return `<div class="mtrio"><a href="${it.m}" target="_blank" rel="noopener">Google</a>` +
+    `<a href="${naver(q)}" target="_blank" rel="noopener">Naver</a>` +
+    `<a href="${kakao(q)}" target="_blank" rel="noopener">Kakao</a></div>`;
+};
+
+/* ---------- live state (weather + fx) ---------- */
+const live = {
+  fx: { rate: Number(localStorage.getItem("s26:fxRate")) || 0.0235, updated: localStorage.getItem("s26:fxUpdated") || "", loading: false, offline: !localStorage.getItem("s26:fxRate") },
+  wx: { days: null, loading: false },
+};
+
+/* ---------- Seoul time helpers ---------- */
+// Minutes since local midnight in Asia/Seoul, plus the M/D string for "today".
+function seoulNow() {
+  const override = sessionStorage.getItem("s26:simNow"); // "M/D HH:MM" for preview
+  if (override) {
+    const m = override.match(/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/);
+    if (m) return { md: `${+m[1]}/${+m[2]}`, mins: +m[3] * 60 + +m[4], sim: true };
+  }
+  const p = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date()).reduce((o, x) => (o[x.type] = x.value, o), {});
+  return { md: `${+p.month}/${+p.day}`, mins: (+p.hour % 24) * 60 + +p.minute, sim: false };
+}
+const parseHM = (t) => { const m = String(t).match(/(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : null; };
+
+// Which day/item are we "at" right now? Returns null when outside the trip window.
+function currentWhere() {
+  const now = seoulNow();
+  const day = TRIP.days.find((d) => d.date === now.md);
+  if (!day) return null;
+  const timed = day.items.map((it, i) => ({ it, i, mins: parseHM(it.t) })).filter((x) => x.mins != null);
+  if (!timed.length) return { day, idx: -1, next: null, beforeFirst: false };
+  if (now.mins < timed[0].mins) return { day, idx: -1, next: timed[0], beforeFirst: true };
+  let cur = timed[0];
+  for (const x of timed) if (x.mins <= now.mins) cur = x; else break;
+  const next = timed.find((x) => x.mins > now.mins) || null;
+  return { day, idx: cur.i, cur, next, beforeFirst: false };
+}
+
+/* ---------- live weather (open-meteo, Seoul) ---------- */
+const WX_ICON = (c) => c === 0 ? "☀" : [1, 2, 3].includes(c) ? "⛅" : [45, 48].includes(c) ? "🌫" : [51, 53, 55, 56, 57].includes(c) ? "🌦" : [61, 63, 65, 66, 67, 80, 81, 82].includes(c) ? "🌧" : [71, 73, 75, 77, 85, 86].includes(c) ? "🌨" : [95, 96, 99].includes(c) ? "⛈" : "🌡";
+function loadWeather(after) {
+  if (live.wx.loading || live.wx.days) { after && after(); return; }
+  live.wx.loading = true;
+  fetch("https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.978&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FSeoul&forecast_days=4", { cache: "no-store" })
+    .then((r) => r.json()).then((j) => {
+      const d = j.daily; if (!d || !d.time) throw 0;
+      live.wx.days = d.time.map((iso, i) => ({
+        md: (+iso.slice(5, 7)) + "/" + (+iso.slice(8, 10)),
+        code: d.weather_code[i], max: Math.round(d.temperature_2m_max[i]), min: Math.round(d.temperature_2m_min[i]),
+        rain: d.precipitation_probability_max ? d.precipitation_probability_max[i] : null,
+      }));
+    }).catch(() => { live.wx.days = null; })
+    .finally(() => { live.wx.loading = false; after && after(); });
+}
+
+/* ---------- live FX (KRW -> TWD) ---------- */
+function loadFx(after) {
+  if (live.fx.loading) { after && after(); return; }
+  live.fx.loading = true;
+  fetch("https://open.er-api.com/v6/latest/KRW", { cache: "no-store" })
+    .then((r) => r.json()).then((j) => {
+      if (!j.rates || !j.rates.TWD) throw 0;
+      live.fx.rate = j.rates.TWD; live.fx.offline = false;
+      live.fx.updated = (j.time_last_update_utc || "").replace(/ \d{2}:.*$/, "");
+      localStorage.setItem("s26:fxRate", String(live.fx.rate));
+      localStorage.setItem("s26:fxUpdated", live.fx.updated);
+    }).catch(() => { live.fx.offline = true; })
+    .finally(() => { live.fx.loading = false; after && after(); });
+}
+
+/* ---------- Korean TTS ---------- */
+function speakKo(text) {
+  if (!("speechSynthesis" in window)) { alert("此瀏覽器不支援語音播放"); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text); u.lang = "ko-KR"; u.rate = 0.85;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- offline KML download / share ---------- */
+function downloadKml() {
+  const url = "./seoul2026.kml";
+  if (navigator.share && navigator.canShare) {
+    fetch(url).then((r) => r.blob()).then((b) => {
+      const file = new File([b], "seoul2026.kml", { type: "application/vnd.google-earth.kml+xml" });
+      if (navigator.canShare({ files: [file] })) return navigator.share({ files: [file], title: "首爾 2026 行程地圖" });
+      throw 0;
+    }).catch(() => triggerDownload(url));
+  } else triggerDownload(url);
+}
+function triggerDownload(url) {
+  const a = document.createElement("a"); a.href = url; a.download = "seoul2026.kml";
+  document.body.appendChild(a); a.click(); a.remove();
+}
 
 /* ---------- trip status ---------- */
 function tripStatus() {
+  // honor the preview simulation so the whole UI stays consistent
+  const sim = sessionStorage.getItem("s26:simNow");
+  if (sim) {
+    const md = (sim.match(/(\d{1,2})\/(\d{1,2})/) || []).slice(1).map(Number);
+    const di = TRIP.days.findIndex((d) => d.date === `${md[0]}/${md[1]}`);
+    if (di >= 0) return { phase: "during", label: `Day ${di + 1} · 今天`, dayIndex: di };
+  }
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const start = new Date(TRIP.startISO + "T00:00:00");
   const end = new Date(TRIP.endISO + "T00:00:00");
@@ -239,6 +378,69 @@ function tripStatus() {
   return { phase: "after", label: "旅程結束 · 一路順風", dayIndex: 5 };
 }
 
+/* ---------- "now" card (real-time timeline highlight) ---------- */
+function itemRow(it, cls) {
+  const note = it.n ? `<div class="now-sub">${esc(it.n)}</div>` : "";
+  return `<div class="now-line ${cls}"><div class="now-time">${esc(it.t)}</div><div class="now-act">${esc(it.a)}${note}${mapTrio(it)}</div></div>`;
+}
+function fillNow(sec) {
+  const st = tripStatus();
+  const where = currentWhere();
+  const now = seoulNow();
+  let body = "", head = "現在該在哪一站", pulse = "";
+
+  if (where && where.beforeFirst) {
+    // a trip day, but the first activity hasn't started yet
+    head = `Day ${where.day.n} · ${where.day.date} 即將開始`;
+    body = `<div class="now-msg">今天還沒開始，第一站：</div>${itemRow(where.next.it, "is-next")}`;
+  } else if (where) {
+    // mid-itinerary: highlight current + next
+    pulse = "live";
+    head = `現在該在哪一站 · Day ${where.day.n}`;
+    body = `<div class="now-label">📍 現在</div>${where.cur ? itemRow(where.cur.it, "is-now") : ""}`;
+    if (where.next) body += `<div class="now-label">下一站 · ${esc(where.next.it.t)}</div>${itemRow(where.next.it, "is-next")}`;
+    else body += `<div class="now-msg">今天行程已到最後一站 🌙</div>`;
+  } else if (st.phase === "before") {
+    const first = TRIP.days[0].items[0];
+    head = "出發前預告";
+    body = `<div class="now-msg">距離出發還有 <b>${st.label.replace(/\D/g, "")}</b> 天，第一站是：</div>${itemRow(first, "is-next")}`;
+  } else if (st.phase === "after") {
+    head = "旅程結束";
+    body = `<div class="now-msg">六天五夜首爾行已完成，一路順風 💜</div>`;
+  } else {
+    body = `<div class="now-msg">今天不在行程日期內。</div>`;
+  }
+
+  const sim = now.sim ? `<span class="now-sim">模擬 ${now.md} ${String(Math.floor(now.mins / 60)).padStart(2, "0")}:${String(now.mins % 60).padStart(2, "0")}</span>` : "";
+  sec.innerHTML = `
+    <div class="now-head"><span class="now-dot ${pulse}"></span><h2>${head}</h2>${sim}
+      <button class="now-prev" id="nowPrev" title="預覽任意時間">${now.sim ? "結束預覽" : "預覽"}</button></div>
+    ${body}
+    <div class="now-preview" id="nowPreview" hidden>
+      <input id="nowSim" type="datetime-local" min="2026-06-30T00:00" max="2026-07-05T23:59" value="2026-07-02T15:30">
+      <button class="now-go" id="nowGo">看那一刻</button>
+    </div>`;
+
+  sec.querySelector("#nowPrev").addEventListener("click", () => {
+    if (now.sim) { sessionStorage.removeItem("s26:simNow"); fillNow(sec); return; }
+    const p = sec.querySelector("#nowPreview"); p.hidden = !p.hidden;
+  });
+  const go = sec.querySelector("#nowGo");
+  if (go) go.addEventListener("click", () => {
+    const v = sec.querySelector("#nowSim").value; // 2026-07-02T15:30
+    const m = v.match(/-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (m) { sessionStorage.setItem("s26:simNow", `${+m[1]}/${+m[2]} ${m[3]}:${m[4]}`); fillNow(sec); }
+  });
+}
+let nowTimer = null;
+function nowCard() {
+  const sec = el("section", "card nowcard");
+  fillNow(sec);
+  clearInterval(nowTimer);
+  nowTimer = setInterval(() => { if (document.body.contains(sec)) fillNow(sec); else clearInterval(nowTimer); }, 30000);
+  return sec;
+}
+
 /* ---------- views ---------- */
 function viewHome() {
   const st = tripStatus();
@@ -251,6 +453,9 @@ function viewHome() {
     <div class="hero-status">${esc(st.label)}</div>
     <div class="hero-dates">2026 / 6 / 30 — 7 / 5　·　${esc(TRIP.subtitle)}</div>`;
   wrap.appendChild(hero);
+
+  // live "now — which station should I be at" card
+  wrap.appendChild(nowCard());
 
   // flights
   const f = el("section", "card");
@@ -297,13 +502,25 @@ function viewHome() {
   c.appendChild(list);
   wrap.appendChild(c);
 
-  // weather
+  // weather (live open-meteo, falls back to static 梅雨季 data offline)
   const w = el("section", "card");
-  let chips = TRIP.weather.days.map((x) => `<div class="wchip"><div class="wchip-d">${esc(x.d)}</div><div class="wchip-i">${x.w}</div><div class="wchip-t">${esc(x.t)}</div></div>`).join("");
-  w.innerHTML = `<h2 class="card-h"><span class="ic">☔</span>天氣 · 梅雨季</h2>
-    <p class="p">${esc(TRIP.weather.intro)}</p>
-    <div class="wgrid">${chips}</div>
-    <p class="p tip">${esc(TRIP.weather.tips)}</p>`;
+  const fillWx = () => {
+    const liveByMd = {};
+    if (live.wx.days) live.wx.days.forEach((x) => (liveByMd[x.md] = x));
+    const chips = TRIP.weather.days.map((x) => {
+      const lv = liveByMd[x.d];
+      const icon = lv ? WX_ICON(lv.code) : x.w;
+      const temp = lv ? `${lv.min}–${lv.max}°` + (lv.rain != null ? ` ☔${lv.rain}%` : "") : esc(x.t);
+      return `<div class="wchip${lv ? " is-live" : ""}"><div class="wchip-d">${esc(x.d)}</div><div class="wchip-i">${icon}</div><div class="wchip-t">${temp}</div></div>`;
+    }).join("");
+    const src = live.wx.days ? `<span class="wx-live">● 即時更新</span>` : (live.wx.loading ? "讀取即時天氣…" : "離線：行前梅雨季預估");
+    w.innerHTML = `<h2 class="card-h"><span class="ic">☔</span>天氣 · 梅雨季 <span class="wx-tag">${src}</span></h2>
+      <p class="p">${esc(TRIP.weather.intro)}</p>
+      <div class="wgrid">${chips}</div>
+      <p class="p tip">${esc(TRIP.weather.tips)}</p>`;
+  };
+  fillWx();
+  loadWeather(fillWx);
   wrap.appendChild(w);
 
   // maps
@@ -332,14 +549,18 @@ function dayCard(d, todayIdx) {
       <div class="day-wx">${esc(d.wx)}</div>
     </div>
     ${d.note ? `<div class="day-note">${esc(d.note)}</div>` : ""}`;
+  const where = isToday ? currentWhere() : null;
+  const curIdx = where && where.day === d ? where.idx : -2;
+  const nextIdx = where && where.day === d && where.next ? where.next.i : -2;
   const tl = el("div", "timeline");
-  d.items.forEach((i) => {
-    const row = el("div", "tl-row" + (i.flag ? " flag" : ""));
+  d.items.forEach((i, ix) => {
+    const hl = ix === curIdx ? " is-now" : ix === nextIdx ? " is-next" : "";
+    const row = el("div", "tl-row" + (i.flag ? " flag" : "") + hl);
+    const tagNow = ix === curIdx ? '<span class="tl-badge">現在</span>' : ix === nextIdx ? '<span class="tl-badge nx">下一站</span>' : "";
     const note = i.n ? `<div class="tl-note">${esc(i.n)}</div>` : "";
-    const map = i.m ? mapLink(i.m, i.mp) : "";
     row.innerHTML = `<div class="tl-time">${esc(i.t)}</div>
       <div class="tl-dot"></div>
-      <div class="tl-body"><div class="tl-act">${esc(i.a)}</div>${note}${map}</div>`;
+      <div class="tl-body"><div class="tl-act">${tagNow}${esc(i.a)}</div>${note}${mapTrio(i)}</div>`;
     tl.appendChild(row);
   });
   sec.appendChild(tl);
@@ -437,9 +658,106 @@ function viewTransit() {
   return wrap;
 }
 
+function viewTools() {
+  const wrap = el("div", "stack");
+
+  /* 匯率換算器 */
+  const fx = el("section", "card");
+  fx.innerHTML = `<h2 class="card-h"><span class="ic">💱</span>匯率換算 <span class="wx-tag" id="fxState"></span></h2>
+    <div class="fxrow">
+      <div class="fxin"><label>金額</label><input id="fxAmt" type="number" inputmode="decimal" min="0" step="1000" value="${esc(localStorage.getItem("s26:fxAmt") || "10000")}"></div>
+      <button class="fxswap" id="fxSwap" title="切換方向">⇅</button>
+      <div class="fxin"><label>方向</label>
+        <select id="fxDir"><option value="K2T">韓元 → 台幣</option><option value="T2K">台幣 → 韓元</option></select></div>
+    </div>
+    <div class="fxout" id="fxOut">—</div>
+    <div class="fxquick" id="fxQuick"></div>
+    <div class="actions-line"><button class="ghost-btn" id="fxRefresh">更新即時匯率</button></div>
+    <ul class="ul" style="margin-top:10px">${TRIP.fxTips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+  wrap.appendChild(fx);
+
+  const amt = fx.querySelector("#fxAmt"), dir = fx.querySelector("#fxDir");
+  dir.value = localStorage.getItem("s26:fxDir") || "K2T";
+  const calc = () => {
+    const r = live.fx.rate || 0.0235, n = Number(amt.value || 0);
+    localStorage.setItem("s26:fxAmt", amt.value); localStorage.setItem("s26:fxDir", dir.value);
+    fx.querySelector("#fxOut").innerHTML = dir.value === "K2T"
+      ? `${n.toLocaleString()} <span class="fxu">KRW</span> ≈ <b>${(n * r).toLocaleString(undefined, { maximumFractionDigits: 0 })}</b> <span class="fxu">TWD</span>`
+      : `${n.toLocaleString()} <span class="fxu">TWD</span> ≈ <b>${(n / r).toLocaleString(undefined, { maximumFractionDigits: 0 })}</b> <span class="fxu">KRW</span>`;
+    fx.querySelector("#fxQuick").innerHTML = [1000, 5000, 10000, 50000].map((k) =>
+      `<span class="fxchip">₩${k.toLocaleString()} ≈ NT$${Math.round(k * r)}</span>`).join("");
+    fx.querySelector("#fxState").innerHTML = live.fx.loading ? "更新中…" :
+      live.fx.offline ? `離線估算${live.fx.updated ? "（" + esc(live.fx.updated) + "）" : ""}` :
+        `<span class="wx-live">● ${esc(live.fx.updated || "即時")}</span>`;
+  };
+  amt.addEventListener("input", calc);
+  dir.addEventListener("change", calc);
+  fx.querySelector("#fxSwap").addEventListener("click", () => { dir.value = dir.value === "K2T" ? "T2K" : "K2T"; calc(); });
+  fx.querySelector("#fxRefresh").addEventListener("click", () => { calc(); loadFx(calc); });
+  calc(); loadFx(calc);
+
+  /* 離線地圖 KML */
+  const km = el("section", "card");
+  km.innerHTML = `<h2 class="card-h"><span class="ic">🗺</span>離線地圖（Google My Maps）</h2>
+    <p class="p muted">下載整趟行程的 <b>.kml</b>，匯入 Google My Maps 後，在 Google 地圖 App 內可離線查看所有景點與餐廳（按 Day 分色）。</p>
+    <div class="actions-line"><button class="primary-btn" id="kmlBtn">⬇ 下載 / 分享 KML</button>
+      <a class="ghost-btn" href="https://www.google.com/maps/d/" target="_blank" rel="noopener">開啟 My Maps</a></div>
+    <ol class="ol">
+      <li>下載 <code>seoul2026.kml</code>（離線也可下載，已快取）。</li>
+      <li>電腦開 <b>google.com/maps/d</b> → 建立新地圖 → 匯入 → 選 KML。</li>
+      <li>手機 Google 地圖 →「你的地點 / 地圖」即可看到，景點先「⭐ 儲存」並下載離線地圖區域。</li>
+    </ol>`;
+  wrap.appendChild(km);
+  km.querySelector("#kmlBtn").addEventListener("click", downloadKml);
+
+  /* 韓文常用語 + TTS */
+  const ph = el("section", "card");
+  ph.innerHTML = `<h2 class="card-h"><span class="ic">💬</span>常用韓文（點 🔊 朗讀）</h2>`;
+  TRIP.phrases.forEach((p) => {
+    const row = el("div", "phrase");
+    row.innerHTML = `<div class="ph-body"><div class="ph-z">${esc(p.z)}</div><div class="ph-k">${esc(p.k)}</div><div class="ph-r">${esc(p.r)}</div></div>
+      <div class="ph-act"><button class="ph-btn" data-say="${esc(p.k)}">🔊</button><button class="ph-btn" data-cp="${esc(p.k)}">⧉</button></div>`;
+    ph.appendChild(row);
+  });
+  wrap.appendChild(ph);
+  ph.querySelectorAll("[data-say]").forEach((b) => b.addEventListener("click", () => speakKo(b.dataset.say)));
+  ph.querySelectorAll("[data-cp]").forEach((b) => b.addEventListener("click", () => {
+    navigator.clipboard?.writeText(b.dataset.cp); b.textContent = "✓"; setTimeout(() => (b.textContent = "⧉"), 1000);
+  }));
+
+  /* 購物 / 退稅清單 */
+  const sh = el("section", "card");
+  sh.innerHTML = `<h2 class="card-h"><span class="ic">🛍</span>購物 · 退稅清單</h2>`;
+  const list = el("div", "checklist");
+  TRIP.shopping.forEach((x, i) => {
+    const id = "shop" + i;
+    const row = el("label", "check");
+    const cb = el("input"); cb.type = "checkbox"; cb.checked = store.get(id);
+    cb.addEventListener("change", () => { store.set(id, cb.checked); row.classList.toggle("done", cb.checked); });
+    row.classList.toggle("done", cb.checked);
+    row.appendChild(cb);
+    row.appendChild(el("div", "check-body", `<div class="check-t">${esc(x)}</div>`));
+    list.appendChild(row);
+  });
+  sh.appendChild(list);
+  wrap.appendChild(sh);
+
+  /* 緊急聯絡 */
+  const em = el("section", "card");
+  em.innerHTML = `<h2 class="card-h"><span class="ic">🆘</span>緊急聯絡</h2>` +
+    TRIP.emergency.map((e) => `<a class="emrow" href="tel:${e.tel.replace(/[^+\d]/g, "")}">
+      <div class="em-body"><div class="em-t">${esc(e.t)}</div><div class="em-v">${esc(e.v)}</div></div>
+      <div class="em-tel">${esc(e.tel)} 📞</div></a>`).join("");
+  wrap.appendChild(em);
+
+  return wrap;
+}
+
 /* ---------- router ---------- */
-const VIEWS = { home: viewHome, days: viewDays, tickets: viewTickets, transit: viewTransit };
+const VIEWS = { home: viewHome, days: viewDays, tickets: viewTickets, transit: viewTransit, tools: viewTools };
 function go(name) {
+  const sw = document.getElementById("searchWrap");
+  if (sw && !sw.hidden) toggleSearch(false);
   const main = document.getElementById("view");
   main.innerHTML = "";
   main.appendChild((VIEWS[name] || viewHome)());
@@ -449,11 +767,59 @@ function go(name) {
   document.getElementById("statusline").textContent = tripStatus().label;
 }
 
+/* ---------- global search ---------- */
+function searchIndex() {
+  const out = [];
+  TRIP.days.forEach((d) => d.items.forEach((i) =>
+    out.push({ cat: `Day ${d.n}·${d.date}`, title: i.a, sub: i.n || "", m: i.m, mp: i.mp || i.a, go: "days" })));
+  TRIP.tickets.forEach((t) => out.push({ cat: "票券", title: t.name, sub: t.note, go: "tickets" }));
+  TRIP.taxi.forEach((t) => out.push({ cat: "計程車", title: t.seg, sub: `${t.fare} · ${t.time}`, go: "transit" }));
+  TRIP.subway.forEach((s) => out.push({ cat: "地鐵", title: s.seg, sub: `${s.line} · ${s.exit}`, go: "transit" }));
+  TRIP.phrases.forEach((p) => out.push({ cat: "韓文", title: `${p.z} — ${p.k}`, sub: p.r, go: "tools" }));
+  TRIP.shopping.forEach((x) => out.push({ cat: "購物", title: x, sub: "", go: "tools" }));
+  return out;
+}
+let SIDX = null;
+function runSearch(q) {
+  const box = document.getElementById("searchRes");
+  q = q.trim().toLowerCase();
+  if (!q) { box.innerHTML = `<div class="sres-empty">輸入關鍵字搜尋全部行程、票券、交通、韓文與購物。</div>`; return; }
+  SIDX = SIDX || searchIndex();
+  const hits = SIDX.filter((x) => `${x.cat} ${x.title} ${x.sub}`.toLowerCase().includes(q)).slice(0, 40);
+  box.innerHTML = hits.length ? hits.map((h) =>
+    `<div class="sres"><div class="sres-cat">${esc(h.cat)}</div>
+      <div class="sres-t">${esc(h.title)}</div>${h.sub ? `<div class="sres-s">${esc(h.sub)}</div>` : ""}
+      <div class="sres-go">${h.m ? mapTrio(h) : ""}<button class="ghost-btn sres-jump" data-go="${h.go}">前往「${h.go === "days" ? "行程" : h.go === "tickets" ? "票券" : h.go === "transit" ? "交通" : "實用"}」</button></div></div>`).join("")
+    : `<div class="sres-empty">找不到「${esc(q)}」相關內容。</div>`;
+  box.querySelectorAll(".sres-jump").forEach((b) => b.addEventListener("click", () => { toggleSearch(false); go(b.dataset.go); }));
+}
+function toggleSearch(force) {
+  const w = document.getElementById("searchWrap");
+  const open = force != null ? force : w.hidden;
+  w.hidden = !open;
+  document.getElementById("searchBtn").classList.toggle("on", open);
+  if (open) { const b = document.getElementById("searchBox"); runSearch(b.value || ""); b.focus(); }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => go(b.dataset.v)));
+
+  // dark mode
+  const applyTheme = (t) => {
+    document.documentElement.setAttribute("data-theme", t);
+    document.getElementById("themeBtn").textContent = t === "dark" ? "☀️" : "🌙";
+  };
+  applyTheme(localStorage.getItem("s26:theme") || "light");
+  document.getElementById("themeBtn").addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    localStorage.setItem("s26:theme", next); applyTheme(next);
+  });
+
+  // search
+  document.getElementById("searchBtn").addEventListener("click", () => toggleSearch());
+  document.getElementById("searchBox").addEventListener("input", (e) => runSearch(e.target.value));
+
   const last = store.get("lastview") || "home";
   go(typeof last === "string" ? last : "home");
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  }
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
 });
