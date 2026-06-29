@@ -242,6 +242,28 @@ const TRIP = {
     "WOWPASS 機場取卡可換匯＋當交通卡＋刷卡，零錢免煩惱。",
     "便利商店、計程車多可刷卡或嗶 T-money；保留少量現金給傳統市場攤販。",
   ],
+  pay: {
+    note: "依你的條件試算（悠遊付：非新戶＋綁元大；中信 uniopen＋星展 eco）。回饋按「每會員／每卡」每月計，行程全在 7 月單月。",
+    ladder: [
+      { step: "1", q: "店家貼 TWQR 標誌？", use: "悠遊付", rate: "45.5%", d: "免1.5%手續費，絕對優先；前約 $2,350 吃滿，至 $10,000 都還有 20%" },
+      { step: "2", q: "不收 TWQR · 第一順位", use: "中信 uniopen", rate: "淨 ~9.5%", d: "刷到加碼滿約 $6,250（⚠ 需先確認 7 月加碼是否生效）", flag: true },
+      { step: "3", q: "uniopen 滿／7月加碼失效", use: "星展 eco", rate: "淨 ~3.5%", d: "刷到加碼滿約 $15,000" },
+      { step: "4", q: "全部加碼都滿", use: "uniopen 基礎", rate: "3%", d: "回基礎 OPENPOINT 回饋" },
+    ],
+    tools: [
+      { name: "悠遊付 TWQR", net: "45.5%（7/3五 47.5%）", cap: "活動一回饋 $600（刷~$2,350）＋活動二 $2,000（刷~$10,000）", tag: "免手續費" },
+      { name: "中信 uniopen", net: "~9.5%", cap: "加碼 500 點/月（刷~$6,250）", tag: "⚠ 加碼至 6/30" },
+      { name: "星展 eco", net: "~3.5%", cap: "加碼 600 點/月（刷~$15,000）", tag: "韓國實體" },
+    ],
+    warn: "中信 uniopen 國外實體 +8% 加碼期限標示至 6/30，你 7/1–7/5 出遊在之後。行前務必到中信 App／uniopen 官網確認 7 月加碼是否生效、是否需登錄；若失效，uniopen 掉到基礎 3%，改用星展 eco（淨 3.5%）較好。",
+    tips: [
+      "超商（Day4 GS25 漢江泡麵、平日補水）多收 TWQR → 悠遊付。",
+      "景福宮韓服／N首爾塔纜車／餐廳多不收 TWQR → uniopen 或 eco。",
+      "樂天免稅店：悠遊付付一筆可領 100 元樂天券（限量會額滿，早點刷）。",
+      "四人想都拿高回饋可各自註冊悠遊付；+15% 需各自綁元大帳戶（無元大者約 30.5%）。",
+      "星展 eco／uniopen 加碼需用實體卡或 Apple／Samsung Pay、外幣結算。",
+    ],
+  },
 };
 
 /* ---------- utilities ---------- */
@@ -660,6 +682,26 @@ function viewTransit() {
 
 function viewTools() {
   const wrap = el("div", "stack");
+
+  /* 韓國支付攻略（依使用者持有的卡客製） */
+  const pay = el("section", "card");
+  const P = TRIP.pay;
+  pay.innerHTML = `<h2 class="card-h"><span class="ic">💳</span>韓國支付攻略（你的卡）</h2>
+    <p class="p muted">${esc(P.note)}</p>
+    <div class="pay-ladder">${P.ladder.map((s) => `
+      <div class="pay-step${s.flag ? " flag" : ""}">
+        <div class="pay-no">${esc(s.step)}</div>
+        <div class="pay-body"><div class="pay-q">${esc(s.q)}</div>
+          <div class="pay-use">${esc(s.use)} <span class="pay-rate">${esc(s.rate)}</span></div>
+          <div class="pay-d">${esc(s.d)}</div></div>
+      </div>`).join("")}</div>
+    <div class="warn">⚠ ${esc(P.warn)}</div>
+    <div class="pay-tools">${P.tools.map((t) => `
+      <div class="pay-tool"><div class="pt-top"><span class="pt-name">${esc(t.name)}</span><span class="pt-tag">${esc(t.tag)}</span></div>
+        <div class="pt-net">淨回饋 <b>${esc(t.net)}</b></div>
+        <div class="pt-cap">${esc(t.cap)}</div></div>`).join("")}</div>
+    <ul class="ul" style="margin-top:10px">${P.tips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+  wrap.appendChild(pay);
 
   /* 匯率換算器 */
   const fx = el("section", "card");
