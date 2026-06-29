@@ -1,12 +1,11 @@
-/* 首爾 2026 PWA — offline service worker */
-const CACHE = "seoul2026-v2";
+/* 首爾 2026 PWA — offline service worker
+   App shell (html/css/js) = network-first，線上永遠拿最新、離線回退快取；
+   圖示／KML = cache-first（內容穩定）；跨來源 = stale-while-revalidate。 */
+const CACHE = "seoul2026-v3";
+const SHELL = ["./", "./index.html", "./app.css", "./app.js", "./manifest.webmanifest"];
 const ASSETS = [
-  "./",
-  "./index.html",
-  "./app.css",
-  "./app.js",
+  ...SHELL,
   "./seoul2026.kml",
-  "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
@@ -28,31 +27,40 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+// Allow the page to tell a waiting SW to take over immediately.
+self.addEventListener("message", (e) => {
+  if (e.data === "skipWaiting") self.skipWaiting();
+});
+
+const netFirst = (req) =>
+  fetch(req).then((res) => {
+    const copy = res.clone();
+    caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+    return res;
+  }).catch(() => caches.match(req).then((hit) => hit || caches.match("./index.html")));
+
+const cacheFirst = (req) =>
+  caches.match(req).then((hit) =>
+    hit || fetch(req).then((res) => {
+      const copy = res.clone();
+      caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+      return res;
+    }).catch(() => hit)
+  );
+
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // App-shell navigations: serve cached index.html when offline.
-  if (req.mode === "navigate") {
-    e.respondWith(
-      fetch(req).catch(() => caches.match("./index.html"))
-    );
-    return;
-  }
-
-  // Same-origin assets: cache-first.
+  // App-shell navigations + same-origin html/css/js: network-first (fresh when online).
+  if (req.mode === "navigate") { e.respondWith(netFirst(req)); return; }
   if (url.origin === location.origin) {
-    e.respondWith(
-      caches.match(req).then((hit) =>
-        hit ||
-        fetch(req).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-          return res;
-        }).catch(() => hit)
-      )
-    );
+    if (/\.(?:html|css|js)$/.test(url.pathname) || url.pathname.endsWith("/")) {
+      e.respondWith(netFirst(req));
+    } else {
+      e.respondWith(cacheFirst(req)); // icons, kml — stable assets
+    }
     return;
   }
 

@@ -821,5 +821,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const last = store.get("lastview") || "home";
   go(typeof last === "string" ? last : "home");
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+
+  // Register SW; auto-reload once when a NEW version takes control (skip first install).
+  if ("serviceWorker" in navigator) {
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded || !hadController) return;
+      reloaded = true; location.reload();
+    });
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
 });
