@@ -93,6 +93,11 @@ main{
 .flight-line{font-size:13.5px;margin-top:2px}
 .flight-line span{display:inline-block;width:40px;color:var(--muted);font-size:12px}
 .flight-air{font-family:var(--disp);font-size:13px;color:var(--muted);margin-top:2px}
+.fr24{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:12.5px;font-weight:600;
+  color:var(--violet);text-decoration:none;background:var(--violet-soft);border:1px solid #E0D8F7;
+  border-radius:999px;padding:5px 11px}
+.fr24:active{opacity:.6}
+[data-theme=dark] .fr24{border-color:#3a3158}
 .hotel-name{font-weight:700;font-size:15px}
 .kv{font-size:13px;margin-top:4px}
 .kv span{color:var(--muted);font-size:12px;margin-right:4px}

@@ -30,8 +30,8 @@ const TRIP = {
   title: "首爾 2026",
   subtitle: "6 天 5 夜 · 四人行",
   flights: {
-    out: { route: "台中 → 首爾", dep: "6/30（二）17:00 · 台中 T2", arr: "6/30 20:45 · 仁川 T1", airline: "德威航空 TW670" },
-    back: { route: "首爾 → 台中", dep: "7/5（日）14:50 · 仁川 T2", arr: "7/5 16:30 · 台中 T1", airline: "真航空 LJ737", warn: "回程在仁川「第二航廈 T2」報到，勿到 T1（接駁要 15–20 分）" },
+    out: { route: "台中 → 首爾", dep: "6/30（二）17:00 · 台中 T2", arr: "6/30 20:45 · 仁川 T1", airline: "德威航空 TW670", no: "TW670" },
+    back: { route: "首爾 → 台中", dep: "7/5（日）14:50 · 仁川 T2", arr: "7/5 16:30 · 台中 T1", airline: "真航空 LJ737", no: "LJ737", warn: "回程在仁川「第二航廈 T2」報到，勿到 T1（接駁要 15–20 分）" },
   },
   hotel: {
     name: "Stayrak Hotel", area: "明洞 · 忠武路", addr: "211-5 Toegye-ro, Jung-gu, Seoul 04557",
@@ -486,18 +486,21 @@ function viewHome() {
 
   // flights
   const f = el("section", "card");
+  const fr = (no) => `<a class="fr24" href="https://www.flightradar24.com/data/flights/${no.toLowerCase()}" target="_blank" rel="noopener">📡 即時航班地圖 ${esc(no)}</a>`;
   f.innerHTML = `<h2 class="card-h"><span class="ic">✈</span>航班</h2>
     <div class="flight">
       <div class="flight-route">${esc(TRIP.flights.out.route)}</div>
       <div class="flight-line"><span>出發</span>${esc(TRIP.flights.out.dep)}</div>
       <div class="flight-line"><span>抵達</span>${esc(TRIP.flights.out.arr)}</div>
       <div class="flight-air">${esc(TRIP.flights.out.airline)}</div>
+      ${fr(TRIP.flights.out.no)}
     </div>
     <div class="flight">
       <div class="flight-route">${esc(TRIP.flights.back.route)}</div>
       <div class="flight-line"><span>出發</span>${esc(TRIP.flights.back.dep)}</div>
       <div class="flight-line"><span>抵達</span>${esc(TRIP.flights.back.arr)}</div>
       <div class="flight-air">${esc(TRIP.flights.back.airline)}</div>
+      ${fr(TRIP.flights.back.no)}
       <div class="warn">⚠ ${esc(TRIP.flights.back.warn)}</div>
     </div>`;
   wrap.appendChild(f);
