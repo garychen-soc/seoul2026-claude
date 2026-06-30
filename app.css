@@ -104,6 +104,7 @@ main{
 .bus-seg.flag .bus-dir{color:var(--persimmon)}
 .bus-t,.bus-b{font-size:12.5px;margin-top:3px}
 .bus-n{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.bus-deadline{margin-top:10px;font-weight:600}
 .bus-pick{font-size:12.5px;font-weight:600;color:var(--persimmon);background:#FBF1EC;border-radius:8px;padding:6px 9px;margin-top:6px;line-height:1.6}
 [data-theme=dark] .bus-pick{background:#37241c}
 .bus-full{margin-top:8px}
