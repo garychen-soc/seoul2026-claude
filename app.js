@@ -33,6 +33,21 @@ const TRIP = {
     out: { route: "台中 → 首爾", dep: "6/30（二）17:00 · 台中 T2", arr: "6/30 20:45 · 仁川 T1", airline: "德威航空 TW670", no: "TW670" },
     back: { route: "首爾 → 台中", dep: "7/5（日）14:50 · 仁川 T2", arr: "7/5 16:30 · 台中 T1", airline: "真航空 LJ737", no: "LJ737", warn: "回程在仁川「第二航廈 T2」報到，勿到 T1（接駁要 15–20 分）" },
   },
+  bus: {
+    title: "機場巴士 6015（明洞線）· 已購來回票",
+    fare: "大人 ₩17,000／兒童 6–12 歲 ₩12,000（已購來回兌換券，需換實體票）",
+    segs: [
+      { dir: "去程 · 機場 → 市區（6/30 TW670 抵 T1）", time: "首班 05:19／末班 22:59，約 10–20 分一班", board: "T1 換票後於 1 樓站牌上車；約 60–75 分到明洞", note: "你約 21:30–22:00 出關，趕末班 22:59 可行但偏緊；怕來不及就改叫 Kakao T", flag: true },
+      { dir: "回程 · 市區 → 機場（7/5 LJ737 飛 T2）", time: "首班 04:24／末班 19:40，約 10–20 分一班", board: "明洞站（L7明洞／世宗酒店 Sejong Hotel）上車；約 75–90 分到機場", note: "建議 10:00 前上車；巴士先到 T1 再到 T2，務必搭到「T2」下車" },
+    ],
+    exchange: [
+      "憑兌換券需先換「實體紙本車票」才能上車：QR／憑證不能直接搭乘，也不能用機場巴士自動售票機。",
+      "換票處：T1 第1航廈 1 樓 6 號門前（內側）；T2 第2航廈 B1 西側停車場巴士售票處。營業 06:00–22:00。",
+      "一抵達就把 4 人來回票一次換好（來回＝2 張單程票，不可只換 1 張）；回程那張收好，回程日在明洞直接出示上車。",
+      "換票時務必告知目的地「明洞 Myeongdong」，以免拿到錯誤區間的車票。",
+      "巴士時間／站點可能臨時變更，搭乘前到官網確認：airportlimousine.co.kr。",
+    ],
+  },
   hotel: {
     name: "Stayrak Hotel", area: "明洞 · 忠武路", addr: "211-5 Toegye-ro, Jung-gu, Seoul 04557",
     checkin: "6/30 15:00 後", checkout: "7/5 12:00 前", rooms: "1 間",
@@ -504,6 +519,20 @@ function viewHome() {
       <div class="warn">⚠ ${esc(TRIP.flights.back.warn)}</div>
     </div>`;
   wrap.appendChild(f);
+
+  // airport bus 6015 (round-trip voucher already purchased)
+  const bs = el("section", "card");
+  const B = TRIP.bus;
+  bs.innerHTML = `<h2 class="card-h"><span class="ic">🚌</span>${esc(B.title)}</h2>
+    <p class="p muted">${esc(B.fare)}</p>
+    ${B.segs.map((s) => `<div class="bus-seg${s.flag ? " flag" : ""}">
+      <div class="bus-dir">${esc(s.dir)}</div>
+      <div class="bus-t">🕐 ${esc(s.time)}</div>
+      <div class="bus-b">📍 ${esc(s.board)}</div>
+      <div class="bus-n">${esc(s.note)}</div></div>`).join("")}
+    <div class="bus-sub">🎫 取票說明（先換實體票）</div>
+    <ul class="ul">${B.exchange.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  wrap.appendChild(bs);
 
   // hotel
   const h = el("section", "card");
