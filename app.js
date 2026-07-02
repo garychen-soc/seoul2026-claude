@@ -300,6 +300,38 @@ const TRIP = {
       "星展 eco／uniopen 加碼需用實體卡或 Apple／Samsung Pay、外幣結算。",
       "永豐 SPORT 5% 需當月於大咖DACARD APP 達 1 萬大卡或 Apple Watch 畫圈 10 次＋設自動扣繳，否則只剩~1%；韓國 Google Pay 受理不如實體刷卡普及。",
     ],
+    tiers: [
+      {
+        name: "悠遊付（非新戶·綁元大）",
+        caps: [
+          { r: "元大 15%", cap: "$100", spend: "NT$667" },
+          { r: "悠遊付 10.5%", cap: "$600", spend: "NT$5,714" },
+          { r: "TWQR 20%", cap: "$2,000", spend: "NT$10,000" },
+        ],
+        rows: [
+          { seg: "$0 – 667", rate: "45.5%", cum: "≈$303" },
+          { seg: "$667 – 5,714", rate: "30.5%", cum: "≈$1,843" },
+          { seg: "$5,714 – 10,000", rate: "20%", cum: "$2,700" },
+          { seg: "＞10,000", rate: "0%", cum: "$2,700" },
+        ],
+        max: "刷滿 NT$10,000 → 回饋 $2,700（平均 27%）；前 $667 最甜，別為元大硬湊",
+      },
+      {
+        name: "icash Pay（非新戶）",
+        caps: [
+          { r: "基礎 15%", cap: "$300", spend: "NT$2,000" },
+          { r: "TWQR 20%", cap: "$2,000", spend: "NT$10,000" },
+          { r: "週日 7%（滿$200）", cap: "$200", spend: "NT$2,857" },
+        ],
+        rows: [
+          { seg: "$0 – 2,000", rate: "35%", cum: "$700" },
+          { seg: "$2,000 – 10,000", rate: "20%", cum: "$2,300" },
+          { seg: "＞10,000", rate: "0%", cum: "$2,300" },
+        ],
+        max: "刷滿 NT$10,000 → $2,300（均 23%）；週日單筆滿$200 再+7%，最多 $2,500",
+      },
+    ],
+    tierNote: "兩者為各自獨立的每月上限，可各刷一份 → 合計最多約 NT$5,000 回饋。點數 1 點＝NT$1，皆免 1.5% 海外手續費。",
   },
 };
 
@@ -758,7 +790,16 @@ function viewTools() {
       <div class="pay-tool"><div class="pt-top"><span class="pt-name">${esc(t.name)}</span><span class="pt-tag">${esc(t.tag)}</span></div>
         <div class="pt-net">淨回饋 <b>${esc(t.net)}</b></div>
         <div class="pt-cap">${esc(t.cap)}</div></div>`).join("")}</div>
-    <ul class="ul" style="margin-top:10px">${P.tips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
+    <ul class="ul" style="margin-top:10px">${P.tips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+    <div class="bus-sub">📊 回饋級距試算（非新戶）</div>
+    ${P.tiers.map((t) => `<div class="tier">
+      <div class="tier-name">${esc(t.name)}</div>
+      <div class="tier-caps">${t.caps.map((c) => `<span class="tier-cap">${esc(c.r)}·上限${esc(c.cap)} → 刷${esc(c.spend)}</span>`).join("")}</div>
+      <div class="tier-tbl"><div class="tier-row tier-hd"><span>累積消費 NT$</span><b>回饋率</b><i>累積回饋</i></div>
+        ${t.rows.map((r) => `<div class="tier-row"><span>${esc(r.seg)}</span><b>${esc(r.rate)}</b><i>${esc(r.cum)}</i></div>`).join("")}</div>
+      <div class="tier-max">💰 ${esc(t.max)}</div>
+    </div>`).join("")}
+    <p class="p muted" style="margin-top:8px">${esc(P.tierNote)}</p>`;
   wrap.appendChild(pay);
 
   /* 匯率換算器 */

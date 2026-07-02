@@ -1,7 +1,7 @@
 /* 首爾 2026 PWA — offline service worker
    App shell (html/css/js) = network-first，線上永遠拿最新、離線回退快取；
    圖示／KML = cache-first（內容穩定）；跨來源 = stale-while-revalidate。 */
-const CACHE = "seoul2026-v10";
+const CACHE = "seoul2026-v11";
 const SHELL = ["./", "./index.html", "./app.css", "./app.js", "./manifest.webmanifest"];
 const ASSETS = [
   ...SHELL,
