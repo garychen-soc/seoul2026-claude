@@ -303,6 +303,7 @@ const TRIP = {
     tiers: [
       {
         name: "悠遊付（非新戶·綁元大）",
+        hi: ">20% 高回饋刷到 NT$5,714 為止（超過只剩 20%）",
         caps: [
           { r: "元大 15%", cap: "$100", spend: "NT$667" },
           { r: "悠遊付 10.5%", cap: "$600", spend: "NT$5,714" },
@@ -318,6 +319,7 @@ const TRIP = {
       },
       {
         name: "icash Pay（非新戶）",
+        hi: ">20% 高回饋刷到 NT$2,000 為止（超過只剩 20%）",
         caps: [
           { r: "基礎 15%", cap: "$300", spend: "NT$2,000" },
           { r: "TWQR 20%", cap: "$2,000", spend: "NT$10,000" },
@@ -794,6 +796,7 @@ function viewTools() {
     <div class="bus-sub">📊 回饋級距試算（非新戶）</div>
     ${P.tiers.map((t) => `<div class="tier">
       <div class="tier-name">${esc(t.name)}</div>
+      ${t.hi ? `<div class="tier-hi">🔥 ${esc(t.hi)}</div>` : ""}
       <div class="tier-caps">${t.caps.map((c) => `<span class="tier-cap">${esc(c.r)}·上限${esc(c.cap)} → 刷${esc(c.spend)}</span>`).join("")}</div>
       <div class="tier-tbl"><div class="tier-row tier-hd"><span>累積消費 NT$</span><b>回饋率</b><i>累積回饋</i></div>
         ${t.rows.map((r) => `<div class="tier-row"><span>${esc(r.seg)}</span><b>${esc(r.rate)}</b><i>${esc(r.cum)}</i></div>`).join("")}</div>

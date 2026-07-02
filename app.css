@@ -390,6 +390,8 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--vi
 .pt-cap{font-size:11.5px;color:var(--muted);margin-top:1px}
 .tier{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-top:8px}
 .tier-name{font-weight:700;font-size:13.5px;color:var(--violet)}
+.tier-hi{margin-top:7px;font-size:13px;font-weight:800;color:#fff;background:var(--persimmon);
+  border-radius:9px;padding:8px 11px;line-height:1.4;box-shadow:0 2px 8px rgba(238,106,58,.35)}
 .tier-caps{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .tier-cap{font-size:10.5px;color:var(--muted);background:var(--violet-soft);border-radius:6px;padding:2px 7px}
 .tier-tbl{margin-top:8px;border-top:1px solid var(--line)}
